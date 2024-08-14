@@ -13,5 +13,9 @@ public class MainDAO extends EgovAbstractMapper{
 	public List<HashMap<String, Object>> selectStudentInfo(){
 		return selectList("selectStudentInfo");
 	}
+	
+//	public List<HashMap<String, Object>> selectStudentInfo(){
+//		return selectList("selectStudentInfo");
+//	}
 
 }
