@@ -71,7 +71,7 @@ public class MainController {
 			System.out.println("my random-number : " + randomNumber.toString());
 		}
 		
-		return mv;
+		//return mv;
 	}
 	
 	@RequestMapping("/cookieTest.do")
