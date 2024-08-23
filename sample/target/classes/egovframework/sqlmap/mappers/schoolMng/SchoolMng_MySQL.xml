@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SchoolMngDAO">
+	
+	<select id="selectSchoolMngList" resultType="java.util.HashMap">
+	select  school_id as schoolId,
+			school_name as schoolName,
+			school_area as schoolArea,
+			school_addr as schoolAddr,
+			school_phone as schoolPhone
+	from tb_school_info
+	</select>
+	
+	<select id="selectSchoolMngInfo" parameterType="int" resultType="java.util.HashMap">
+	select  school_id as schoolId,
+			school_name as schoolName,
+			school_area as schoolArea,
+			school_addr as schoolAddr,
+			school_phone as schoolPhone
+	from tb_school_info
+	where school_id = #{schoolIdx}
+	
+	</select>
+	
+	<!--
+	<select id="selectSchoolMngInfo" parameterType="int" resultType="java.util.HashMap">
+	select  school_id as schoolId,
+			school_name as schoolName,
+			school_area as schoolArea,
+			school_addr as schoolAddr,
+			school_phone as schoolPhone
+	from tb_school_info
+	where 1=1
+	
+	<if test="schoolName != '' and schoolName != null and schoolNmae != 'undfined'">
+		school_name = #{schoolName},
+	</if>
+	
+	<if test="schoolAddr != '' and schoolAddr != null and schoolAddr != 'undfined'">
+		school_name = #{schoolAddr},
+	</if>
+	
+	</select>
+	  -->
+
+	
+
+
+
+	<insert id="insertSchoolInfo" parameterType="java.util.HashMap">
+	INSERT INTO tb_school_info(
+		school_name,
+		school_area,
+		school_addr,
+		school_phone
+	) VALUES (
+		#{schoolName}, #{schoolArea}, #{schoolAddr}, #{schoolPhone})
+	</insert>
+	
+	<delete id="deleteSchoolInfo" parameterType="java.util.HashMap">
+	delete from tb_school_info
+	where school_id = #{schoolIdx}
+	
+	</delete>
+	
+<!-- 첫번째 방법
+	<update id="updateSchoolInfo" parameterType="java.util.HashMap">
+	    UPDATE tb_school_info
+	    SET school_name = #{schoolName},
+	        school_area = #{schoolArea},
+	        school_addr = #{schoolAddr},
+	        school_phone = #{schoolPhone}
+	    WHERE school_id = #{schoolId}
+	</update> 
+-->
+
+<!-- 2번째 방법 -->
+	<update id="updateSchoolInfo" parameterType="java.util.HashMap">
+	    UPDATE tb_school_info
+		<set>
+		
+		<if test="schoolName != '' and schoolName != null and schoolNmae != 'undfined'">
+		school_name = #{schoolName},
+		</if>
+		
+		<if test="schoolArea != '' and schoolArea != null and schoolArea != 'undfined'">
+		school_name = #{schoolArea},
+		</if>
+		
+		<if test="schoolAddr != '' and schoolAddr != null and schoolAddr != 'undfined'">
+		school_name = #{schoolAddr},
+		</if>
+
+		<if test="schoolPhone != '' and schoolPhone != null and schoolPhone != 'undfined'">
+		school_name = #{schoolPhone},
+		</if>		
+		
+		</set>
+	    WHERE school_id = #{schoolId}
+	</update> 
+<!-- 2번째 방법 -->
+
+</mapper>
