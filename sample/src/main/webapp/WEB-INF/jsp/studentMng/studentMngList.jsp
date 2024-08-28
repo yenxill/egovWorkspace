@@ -32,7 +32,7 @@
 		        	innerHtml += data.list[i].rnum;
 		        	innerHtml += '</td>';
 		        	innerHtml += '<td>';
-		        	innerHtml += '<a href = "javascript:fn_detail('+data.list[i].studentId+');">';
+		        	innerHtml += '<a href="javascript:fn_detail('+data.list[i].studentId+');">';
 		        	innerHtml += data.list[i].studentName;
 		        	innerHtml += '</a>';
 		        	innerHtml += '</td>';
@@ -53,16 +53,17 @@
 	
 	function fn_detail(studentId){
 		$("#studentId").val(studentId);
-		var frm = $("#frm");
+		var frm = $("#listFrm");
 		frm.attr("method", "POST");
 		frm.attr("action", "/studentMng/detailstudentMngList.do");
 		frm.submit();
+		
 	}
 	
 </script>
 </head>
 <body>
-	<form id="frm" name="frm" action="">
+	<form id="listFrm" name="listFrm" action="">
 		<input type="hidden" id="studentId" name="studentId" value=""/>
 	</form>
 	<table style="border: 1px solid #444444;">
@@ -77,5 +78,7 @@
 	<tbody id="bodyList">
 	</tbody>
 	</table>
+	<a href="/studentMng/registStudentMng.do">등록</a>
+
 </body>
 </html>

@@ -27,7 +27,7 @@
 		</tr>
 		<tr>
 			<th style="border: 1px solid #444444;">학교명</th>
-			<td style="border: 1px solid #444444;">${schoolInfo.schoolName }</td>
+			<td style="border: 1px solid #444444;">${studentInfo.schoolName }</td>
 		</tr>
 		<tr>
 			<th style="border: 1px solid #444444;">졸업 여부</th>
@@ -36,7 +36,7 @@
 		
 	</table>
 
-	<a href="/schoolMng/getSchoolList.do">목록으로</a>
+	<a href="/studentMng/getStudentMngList.do">목록으로</a>
 
 </body>
 </html>

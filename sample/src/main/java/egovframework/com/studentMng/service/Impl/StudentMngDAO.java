@@ -20,5 +20,10 @@ public class StudentMngDAO extends EgovAbstractMapper{
 		System.out.println(resultMap.toString());
 		return resultMap;
 	}
-
+	
+	public int insertStudentMng(HashMap<String, Object> paramMap) {
+		return insert("insertStudentMng", paramMap);
+	}
+	
+ 
 }

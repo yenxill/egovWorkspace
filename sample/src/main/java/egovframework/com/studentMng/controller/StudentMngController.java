@@ -6,10 +6,12 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import egovframework.com.schoolMng.service.SchoolMngService;
 import egovframework.com.studentMng.service.StudentMngService;
 
 @Controller
@@ -17,11 +19,16 @@ public class StudentMngController {
 
 	@Resource(name="StudentMngService")
 	private StudentMngService studentMngService;
+	
+	@Resource(name="SchoolMngService")
+	private SchoolMngService schoolMngService;
 
 	@RequestMapping("/studentMng/getStudentMngList.do")
 	public String getStudentMngList() {
 		return "studentMng/studentMngList";
 	}
+	
+	
 
 	@RequestMapping("/studentMng/selectStudentMngList.do")
 	public ModelAndView selectStudentMngList() {
@@ -75,6 +82,27 @@ System.out.println(1);
 	}
 	*/
 
+	@RequestMapping("/studentMng/registStudentMng.do")
+	public String registStudentMng(Model model) {
+		
+		List<HashMap<String, Object>> schoolList = schoolMngService.selectSchoolList();
+		model.addAttribute("schoolList", schoolList);
+		
+		return "studentMng/studentMngRegister";
+	}
 
+	@RequestMapping("/studentMng/insertStudentMng.do")
+	public ModelAndView insertStudentMng(@RequestParam HashMap<String, Object> paramMap ) {
+		
+		ModelAndView mv = new ModelAndView();
+		int resultChk= 0;
+		resultChk = studentMngService.insertStudentMng(paramMap);
+		
+		// System.out.println(paramMap.toString());
+		mv.addObject("resultChk",resultChk);
+		mv.setViewName("jsonView");
+		return mv; 
+	}
+	
 }
 
