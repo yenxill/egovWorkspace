@@ -17,6 +17,9 @@ public class MainDAO extends EgovAbstractMapper{
 		return insert("insertMember", paramMap);
 	}
 	
+	public HashMap<String, Object> selectLoginInfo(HashMap<String, Object> paramMap) {
+		return selectOne("selectLoginInfo", paramMap);
+	}
 	
 	
 }
