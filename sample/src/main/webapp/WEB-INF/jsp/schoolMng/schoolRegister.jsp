@@ -55,20 +55,14 @@
 	function fn_updateSchool(){
 		var frm = $("#frm").serialize();
 		$.ajax({
-		    url: '/schoolMng/updateSchoolInfo.do',
+		    url: '/updateMember.do',
 		    method: 'post',
-// 		    data : {
-// 		    	"schoolName" : $("#schoolName").val(),
-// 		    	"schoolArea" : $("#schoolArea").val(),
-// 		    	"schoolAddr" : $("#schoolAddr").val(),
-// 		    	"schoolPhone" : $("#schoolPhone").val()
-// 		    },
 			data : frm,
 		    dataType : 'json',
 		    success: function (data, status, xhr) {
 		        if(data.resultChk > 0){
 		        	alert("수정되었습니다.");
-		        	location.href="/schoolMng/getSchoolList.do";
+		        	location.href="/updateMember.do";
 		        }
 		    },
 		    error: function (data, status, err) {

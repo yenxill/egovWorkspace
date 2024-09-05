@@ -8,16 +8,15 @@
 <link rel="stylesheet" href="/css/egovframework/login.css"/>
 <title>Insert title here</title>
 <script type="text/javascript">
-	$(document).ready(function() {
-		$("#btn_login").on('click', function() {
+	$(document).ready(function(){
+		$("#btn_login").on('click', function(){
 			fn_login();
-		}); 
-		
+		});
 	});
-
 
 	function fn_createAccount(){
 		var frm = $("#frm");
+		frm.attr("method", "POST");
 		frm.attr("action", "/join.do");
 		frm.submit();
 	}
@@ -30,19 +29,32 @@
 		    data : frm,
 		    dataType : 'json',
 		    success: function (data, status, xhr) {
-		        if(data.resultChk) {
-		        	location.href = "/main.do";
-		        	
-		        }else {
-		        	alert("로그인을 실패했습니다.");
+		        if(data.resultChk){
+		        	location.href="/board/boardList.do";
+		        }else{
+		        	alert("로그인에 실패하였습니다.");
 		        	return;
 		        }
 		    },
 		    error: function (data, status, err) {
+		    	console.log(err);
 		    }
 		});
 	}
 	
+	function fn_findIdView(){
+		var frm = $("#frm");
+		frm.attr("method", "POST");
+		frm.attr("action", "/findIdView.do");
+		frm.submit();
+	}
+	
+	function fn_findPwView(){
+		var frm = $("#frm");
+		frm.attr("method", "POST");
+		frm.attr("action", "/findPwView.do");
+		frm.submit();
+	}
 </script>
 </head>
 <body>
@@ -52,21 +64,23 @@
 	        <td><h2>로그인</h2></td>
 	    </tr>
 	    <tr>
-	        <td><input type="text" placeholder="ID" id ="id" name="id"></td>
+	        <td><input type="text" placeholder="ID" id="id" name="id"></td>
 	    </tr>
 	    <tr>
-	        <td><input type="password" placeholder=Password id ="pwd" name="pwd"></td>
+	        <td><input type="password" placeholder=Password id="pwd" name="pwd"></td>
 	    </tr>
 	    <tr>
-	       <td><input type="checkbox">로그인 정보 저장</td>
+	       <td><input type="checkbox"> 로그인 정보 저장</td>
 	    </tr>
 	   <tr>
-	  <!-- <td><input type="submit" value="Sign in" class="btn" onclick="alert('로그인 성공!')"></td> --> 
-        <td><input type="button" value="Sign in" class="btn" id ="btn_login" name="btn_login" ></td>
-	        
+	        <td><input type="button" value="Sign in" class="btn" id="btn_login" name="btn_login"></td>
 	    </tr>
 	    <tr>
-	        <td class="join"><a href="javascript:fn_createAccount();">회원가입</a></td>
+	        <td class="join">
+	        	<a href="javascript:fn_findIdView();">아이디찾기</a> |
+	        	<a href="javascript:fn_findPwView();">비밀번호 찾기</a> |
+	        	<a href="javascript:fn_createAccount();">회원가입</a>
+	        </td>
 	    </tr>
 	</table>
 </form>
