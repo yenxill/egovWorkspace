@@ -44,7 +44,11 @@
 	}
 	
 	function fn_insert(){
-		
+		$("#flag").val("I"); //생성되는 시점
+		var frm = $("#boardFrm");
+		frm.attr("method", "POST"); //메소드 속성 방식 (POST으로)
+		frm.attr("action", "/board/registBoard.do"); 
+		frm.submit();
 	}
 	
 	function fn_paging_move(pageIndex){

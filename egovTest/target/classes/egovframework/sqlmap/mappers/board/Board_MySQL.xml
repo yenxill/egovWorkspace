@@ -11,7 +11,28 @@
 	</select>
 	
 	<insert id="insertBoard" parameterType="java.util.HashMap">
+		INSERT INTO tb_board (
+
+		board_title,
+		board_content,
+		file_group_idx,
+		create_id,
+		create_date,
+		update_id,
+		update_date,
+		use_yn
 		
+		) VALUES (
+
+		#{boardTitle },
+		#{boardContent },
+		null,
+		#{memberId },
+		CURRENT_TIMESTAMP(),
+		#{memberId },
+		CURRENT_TIMESTAMP(),
+		'Y'
+		);
 	</insert>
 	
 	<update id="updateBoard" parameterType="java.util.HashMap">
