@@ -68,24 +68,45 @@ public class BoardController {
 			HashMap<String, Object> boardInfo = boardService.selectBoardDetail(boardIdx);
 			model.addAttribute("boardIdx", boardIdx);
 			model.addAttribute("boardInfo", boardInfo);
+			model.addAttribute("loginInfo", loginInfo);
 			return "board/boardDetail";
 		
 		
 		}else {
 			return "redirect:/login.do";
 		}
+
+	}
+	
+	@RequestMapping("/board/getBoardDetail.do")
+	public ModelAndView getBoardDetail(@RequestParam(name="boardIdx") int boardIdx) {
+		ModelAndView mv = new ModelAndView();
+		
+		HashMap<String, Object> boardInfo = boardService.selectBoardDetail(boardIdx);
 		
 		
+		mv.addObject("boardInfo", boardInfo);
+		mv.setViewName("jsonView");
+		return mv;
 	}
 	
 	@RequestMapping("/board/registBoard.do")
-	public String registBoard(HttpSession session, Model model, @RequestParam(name="flag") String flag) {
+	public String registBoard(HttpSession session, Model model, @RequestParam HashMap<String, Object> paramMap ) {
 		HashMap<String, Object> loginInfo = null;
 		loginInfo = (HashMap<String, Object>) session.getAttribute("loginInfo");
 		if(loginInfo != null) {
+			String  flag = paramMap.get("flag").toString();
+			
 			model.addAttribute("flag", flag); // flag : 등록과 수정 구분 값
+			
+			if("U".equals(flag)) {
+				model.addAttribute("boardIdx", paramMap.get("boardIdx").toString());
+			}
+			
 			return "board/registBoard";
+			
 		} else {
+			
 			return "redirect:/login.do";
 		}
 		
@@ -101,6 +122,22 @@ public class BoardController {
 		paramMap.put("memberId", sessionInfo.get("id").toString());
 		
 		resultChk = boardService.saveBoard(paramMap);
+		
+		mv.addObject("resultChk", resultChk);
+		mv.setViewName("jsonView");
+		return mv;
+	}
+ 
+	@RequestMapping("/board/deleteBoard.do")
+	public ModelAndView deleteBoard(@RequestParam HashMap<String, Object> paramMap
+			, HttpSession session) {
+		ModelAndView mv = new ModelAndView();
+		int resultChk = 0;
+		
+		HashMap<String, Object> sessionInfo = (HashMap<String, Object>) session.getAttribute("loginInfo");
+		paramMap.put("memberId", sessionInfo.get("id").toString());
+
+		resultChk = boardService.deleteBoard(paramMap);
 		
 		mv.addObject("resultChk", resultChk);
 		mv.setViewName("jsonView");

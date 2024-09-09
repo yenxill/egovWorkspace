@@ -30,4 +30,9 @@ public class BoardDAO extends EgovAbstractMapper{
 		return selectOne("selectBoardDetail", boardIdx);
 	}
 	
+	public int deleteBoard(HashMap<String, Object> paramMap) {
+		return update("deleteBoard", paramMap);
+		
+	}
+	
 }
