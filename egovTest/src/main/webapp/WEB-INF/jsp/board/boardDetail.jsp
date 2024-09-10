@@ -35,6 +35,8 @@
 		} 
 		*/
 		
+		fn_getReply("${boardInfo.boardIdx}");
+		
 		$("#btn_update").on('click', function(){
 			$("#flag").val("U");
 			var frm = $("#saveFrm");
@@ -51,6 +53,10 @@
 		
 		$("#btn_delete").on('click', function(){
 			fn_delete();
+		});
+		
+		$("#btn_reply_save").on('click', function(){
+			fn_comment();
 		});
 
 	});
@@ -97,8 +103,6 @@
 		});
 	}
 	
-	
-
 
 // 다른 방법
 //	function fn_update() {
@@ -109,11 +113,140 @@
 //		frm.submit();
 //	}
 
+		function fn_getReply(boardIdx){
+		$.ajax({
+		    url: '/board/getBoardReply.do',
+		    method: 'post',
+		    data : { "boardIdx" : boardIdx},
+		    dataType : 'json',
+		    success: function (data, status, xhr) {
+		    	var replyHtml = '';
+		    	if(data.replyList.length > 0){
+		    		for(var i=0; i<data.replyList.length; i++){
+		    			replyHtml += '<div id="reply_'+data.replyList[i].replyIdx+'" style="width:90%;">';
+			    		replyHtml += '<span>';
+			    		if(data.replyList[i].replyLevel > 0){
+			    			for(var j=0; j<data.replyList[i].replyLevel; j++){
+				    			replyHtml += '=';
+				    		}
+			    			replyHtml+='=>';
+			    		}
+			    		replyHtml += data.replyList[i].createId;
+			    		replyHtml += '</span></br>';
+			    		replyHtml += '<span>';
+			    		replyHtml += data.replyList[i].replyContent;
+			    		replyHtml += '</span></br>';
+			    		replyHtml += '<span>';
+			    		replyHtml += data.replyList[i].createDate;
+			    		replyHtml += '<a href="javascript:fn_replyInsert(\''+data.replyList[i].replyIdx+'\');" style="float:right;">';
+			    		replyHtml += '답글달기';
+			    		replyHtml += '</a><br>';
+			    		replyHtml += '<a href="javascript:fn_replyDelete(\''+data.replyList[i].replyIdx+'\');" style="float:right;">';
+			    		replyHtml += '삭제';
+			    		replyHtml += '</a>';
+			    		replyHtml += '</span></br>';
+			    		replyHtml += '</div>';	
+		    		}
+		    	}else{
+		    		
+		    		replyHtml += '댓글이 존재하지 않습니다.';
+		    	}
+		    	$("#replyDiv").html(replyHtml);
+		    },
+		    error: function (data, status, err) {
+		    	console.log(err);
+		    }
+		});
+	}
+	
+	function fn_replyInsert(replyIdx){
+		
+	}
+	
+	//상위 댓글
+	function fn_replyInsertSave(replyIdx){
+		var boardIdx = $("#boardIdx").val();
+		var replyContent = $("#replyContent_"+replyIdx).val();
+		$.ajax({
+		    url: '/board/saveBoardReply.do',
+		    method: 'post',
+		    data : { 
+		    	"boardIdx" : boardIdx,
+		    	"replyIdx" : replyIdx,
+		    	"replyContent" : replyContent
+		    },
+		    dataType : 'json',
+		    success: function (data, status, xhr) {
+		    	if(data.resultChk > 0){
+		    		alert("등록되었습니다.");
+		    		fn_getReply(boardIdx);
+		    	}else{
+		    		alert("등록에 실패하였습니다.");
+		    	}
+		    },
+		    error: function (data, status, err) {
+		    	console.log(status);
+		    }
+		});
+	}
+	
+	function fn_comment(){
+		var boardIdx = $("#boardIdx").val();
+		var replyContent = $("#replyContent").val();
+		$.ajax({
+		    url: '/board/saveBoardReply.do',
+		    method: 'post',
+		    data : { 
+		    	"boardIdx" : boardIdx,
+		    	"replyContent" : replyContent
+		    },
+		    dataType : 'json',
+		    success: function (data, status, xhr) {
+		    	if(data.resultChk > 0){
+		    		alert("등록되었습니다.");
+		    		//fn_getReply(boardIdx);
+		    	}else{
+		    		alert("등록에 실패하였습니다.");
+		    	}
+		    },
+		    error: function (data, status, err) {
+		    	console.log(status);
+		    }
+		});
+	}
+	
+	function fn_replyDelete(replyIdx){
+		$.ajax({
+		    url: '/board/deleteBoardReply.do',
+		    method: 'post',
+		    data : { 
+		    	"replyIdx" : replyIdx
+		    },
+		    dataType : 'json',
+		    success: function (data, status, xhr) {
+		    	if(data.resultChk > 0){
+		    		alert("삭제되었습니다.");
+		    		fn_getReply("${boardIdx}");
+		    	}else{
+		    		alert("삭제에 실패하였습니다.");
+		    	}
+		    },
+		    error: function (data, status, err) {
+		    	console.log(status);
+		    }
+		});
+		
+	}
+
 
 </script>
 </head>
 <body>
 	<div>
+		<form id="fileFrm" name="fileFrm" method="POST">
+			<input type="hidden" id="fileName" name="fileName" value=""/>
+			<input type="hidden" id="filePath" name="filePath" value=""/>
+		</form>
 		<form id="saveFrm" name="saveFrm">
 			<input type="hidden" id="flag" name="flag" value="${flag}"/>
 			<input type="hidden" id="boardIdx" name="boardIdx" value="${boardIdx }"/>
@@ -128,7 +261,7 @@
 					<tr>
 						<th>제목</th>
 						<td colspan="3">
-							<input type="text" class="text" id="boardTitle" name="boardTitle" value="${boardInfo.boardTitle}" readonly/>
+							<input type="text" class="text" id="boardTitle" name="boardTitle" value="${boardInfo.boardTitle }" readonly/>
 						</td>
 					</tr>
 					<tr>
@@ -140,34 +273,47 @@
 					<tr>
 						<th>작성자</th>
 						<td>
-							<input type="text" class="text" id="createId" name="createId" value="${boardInfo.createId}" readonly />
+							<input type="text" class="text" id="createId" name="createId" value="${boardInfo.createId }" readonly />
 						</td>
 						<th>작성일</th>
 						<td>
-							<input type="text" class="text" id="createDate" name="createDate" value="${boardInfo.createDate}" readonly />
+							<input type="text" class="text" id="createDate" name="createDate" value="${boardInfo.createDate }" readonly />
 						</td>
 					</tr>
 					<tr>
 						<th>수정자</th>
 						<td>
-							<input type="text"  class="text" id="updateId" name="updateId" value="${boardInfo.updateId}" readonly />
+							<input type="text"  class="text" id="updateId" name="updateId" value="${boardInfo.updateId }" readonly />
 						</td>
 						<th>수정일</th>
 						<td>
-							<input type="text" class="text" id="updateDate" name="updateDate" value="${boardInfo.updateDate}" readonly />
+							<input type="text" class="text" id="updateDate" name="updateDate" value="${boardInfo.updateDate }" readonly />
 						</td>
+					</tr>
+					<tr>
+						<th>첨부파일</th>
+						<td><div id="boardFileList" name="boardFileList"></div></td>
 					</tr>
 				</tbody>
 				
 			</table>
 		</form>
 	</div>
-	<div style="float:right;">
+	<div style="float:right; width:100%;">
+		<input type="button" id="btn_list" name="btn_list" value="목록" style="float:right;"/>
 		<c:if test="${loginInfo.id == boardInfo.createId }"> <!-- 수정 버튼 보이고 안보이고 처리방법 - 1 -->
-			<input type="button" id="btn_update" name="btn_update" value="수정"/>
-			<input type="button" id="btn_delete" name="btn_delete" value="삭제"/>
+			<input type="button" id="btn_delete" name="btn_delete" value="삭제" style="float:right;" />
+			
+			<input type="button" id="btn_update" name="btn_update" value="수정" style="float:right;"/>
 		</c:if>
-			<input type="button" id="btn_list" name="btn_list" value="목록"/>
+	</div>
+	<div style="width:100%; margin:0px 0px 0px 9%;">
+		<h4>댓글</h4>
+		<input type="text" id="replyContent" name="replyContent" style="width:87%; margin:0 0px 10px 0px;" placeholder="댓글을 입력해주세요."/>
+		<input type="button" id="btn_reply_save" name="btn_reply_save" value="등록"/>
+	</div>
+	<div style="width:100%; margin:0px 0px 0px 9%;" id="replyDiv" name="replyDiv">
 	</div>
 </body>
 </html>
+

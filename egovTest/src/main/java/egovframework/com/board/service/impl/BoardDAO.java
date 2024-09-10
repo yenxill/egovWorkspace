@@ -35,4 +35,15 @@ public class BoardDAO extends EgovAbstractMapper{
 		
 	}
 	
+	public int insertReply (HashMap<String, Object> paramMap) {
+		return insert("insertReply", paramMap);
+	}
+	
+	//여러건 일때 List
+	//단건일때  selectone
+	public List<HashMap<String, Object>> selectBoardReply(HashMap<String, Object> paramMap) {
+		return selectList("selectBoardReply",paramMap);
+	}
+	
+	
 }
