@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c"      uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,18 +23,16 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function(){
-		/* 
-		수정 버튼 보이고 안보이고 처리방법 - 2 
+		/* 수정 버튼 보이고 안보이고 처리방법 - 2 
 		var loginId = "${loginInfo.id}";
 		var createId = "${boardInfo.createId}";
 		if(loginId != createId){
 			$("#btn_update").hide();
-			
-		}else{		
+		}else{
 			$("#btn_update").show();
-		} 
-		*/
+		} */
 		
+		fn_getFileList(); 
 		fn_getReply("${boardInfo.boardIdx}");
 		
 		$("#btn_update").on('click', function(){
@@ -43,12 +41,12 @@
 			frm.attr("method", "POST");
 			frm.attr("action", "/board/registBoard.do");
 			frm.submit();
-		
+			
 //			fn_update();
 		});
 		
 		$("#btn_list").on('click', function(){
-			location.href = "/board/boardList.do";
+			location.href="/board/boardList.do";
 		});
 		
 		$("#btn_delete").on('click', function(){
@@ -58,25 +56,23 @@
 		$("#btn_reply_save").on('click', function(){
 			fn_comment();
 		});
-
 	});
 	
-	
 //	function fn_save(){
-//		var frm = $("#saveFrm").serialize();
-//		$.ajax({
-//		    url: '/board/saveBoard.do',
-//		    method: 'post',
-//		    data : frm,
-//		    dataType : 'json',
-//		    success: function (data, status, xhr) {
-//		    	
-//		    },
-//		    error: function (data, status, err) {
-//		    	console.log(err);
-//		    }
-//		});
-//	}
+//	var frm = $("#saveFrm").serialize();
+//	$.ajax({
+//	    url: '/board/saveBoard.do',
+//	    method: 'post',
+//	    data : frm,
+//	    dataType : 'json',
+//	    success: function (data, status, xhr) {
+//	    	
+//	    },
+//	    error: function (data, status, err) {
+//	    	console.log(err);
+//	    }
+//	});
+//}
 	
 	function fn_delete(){
 //		var frm = $("#saveFrm").serialize();
@@ -103,7 +99,6 @@
 		});
 	}
 	
-
 // 다른 방법
 //	function fn_update() {
 //		$("#flag").val("U");
@@ -112,8 +107,8 @@
 //		frm.attr("action", "/board/registBoard.do");
 //		frm.submit();
 //	}
-
-		function fn_getReply(boardIdx){
+	
+	function fn_getReply(boardIdx){
 		$.ajax({
 		    url: '/board/getBoardReply.do',
 		    method: 'post',
@@ -160,9 +155,12 @@
 	}
 	
 	function fn_replyInsert(replyIdx){
-		
+		var innerHtml = '';
+		innerHtml+='<input type="text" id="replyContent_'+replyIdx+'" name="replyContent_'+replyIdx+'" "placeholder="답글을 입력하세요." value=""/>';
+		innerHtml+='<input type="button" id="replyInsert_'+replyIdx+'" name="replyInsert_'+replyIdx+'" value="등록" onclick="javascript:fn_replyInsertSave(\''+replyIdx+'\');"/>';
+		$("#reply_"+replyIdx).append(innerHtml);
 	}
-	
+
 	//상위 댓글
 	function fn_replyInsertSave(replyIdx){
 		var boardIdx = $("#boardIdx").val();
@@ -204,7 +202,7 @@
 		    success: function (data, status, xhr) {
 		    	if(data.resultChk > 0){
 		    		alert("등록되었습니다.");
-		    		//fn_getReply(boardIdx);
+		    		fn_getReply(boardIdx);
 		    	}else{
 		    		alert("등록에 실패하였습니다.");
 		    	}
@@ -226,7 +224,7 @@
 		    success: function (data, status, xhr) {
 		    	if(data.resultChk > 0){
 		    		alert("삭제되었습니다.");
-		    		fn_getReply("${boardIdx}");
+		    		fn_getReply(boardIdx);
 		    	}else{
 		    		alert("삭제에 실패하였습니다.");
 		    	}
@@ -237,7 +235,40 @@
 		});
 		
 	}
-
+	
+	function fn_getFileList(){
+		// /board/getFileList.do
+			var fileGroupIdx = "${boardInfo.fileGroupIdx}";
+		$.ajax({
+		    url: '/board/getFileList.do',
+		    method: 'post',
+		    data : { 
+		    	"fileGroupIdx" : fileGroupIdx
+		    },
+		    dataType : 'json',
+		    success: function (data, status, xhr) {
+		    	var innerHtml = '';
+		    	for(var i=0; i<data.fileList.length; i++){
+		    		innerHtml += '<span>';
+		    		innerHtml += '<a href="javascript:fn_down(\''+data.fileList[i].saveFilePath+'\',\''+data.fileList[i].saveFileName+'\');">';
+			    	innerHtml += data.fileList[i].fileOriginalName;
+			    	innerHtml += '</a></span><br>';	
+		    	}
+		    	$("#boardFileList").html(innerHtml);
+		    },
+		    error: function (data, status, err) {
+		    	console.log(status);
+		    }
+		});
+	}
+	
+	function fn_down(filePath, fileName){
+		$("#fileName").val(fileName);
+		$("#filePath").val(filePath)
+		var frm = $("#fileFrm");
+		frm.attr("action", "/board/getFileDown.do");
+		frm.submit();
+	}
 
 </script>
 </head>
@@ -302,8 +333,7 @@
 	<div style="float:right; width:100%;">
 		<input type="button" id="btn_list" name="btn_list" value="목록" style="float:right;"/>
 		<c:if test="${loginInfo.id == boardInfo.createId }"> <!-- 수정 버튼 보이고 안보이고 처리방법 - 1 -->
-			<input type="button" id="btn_delete" name="btn_delete" value="삭제" style="float:right;" />
-			
+			<input type="button" id="btn_delete" name="btn_delete" value="삭제" style="float:right;"/>
 			<input type="button" id="btn_update" name="btn_update" value="수정" style="float:right;"/>
 		</c:if>
 	</div>
@@ -316,4 +346,3 @@
 	</div>
 </body>
 </html>
-

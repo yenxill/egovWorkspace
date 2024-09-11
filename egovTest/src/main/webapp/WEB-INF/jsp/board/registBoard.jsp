@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,47 +9,101 @@
 	crossorigin="anonymous"></script>
 <title>게시물 등록</title>
 <style>
-	table{
-		margin:auto;
-		width:100%;
-		height:auto;
-	}
-	tr {
-		height:30px;
-	}
-	.text {
-	 width:100%;
-	}
+table {
+	margin: auto;
+	width: 100%;
+	height: auto;
+}
+
+tr {
+	height: 30px;
+}
+
+.text {
+	width: 100%;
+}
+.boardFileList {
+	display: flex;
+	align-items : center;
+	justify-content: center;
+	flex-direction: column;
+}
+
 </style>
 
 <script type="text/javascript">
+	/* 파일 업로드 관련 변수 */
+	var fileCnt = 0;
+	var totalCnt = 20;
+	var fileNum = 0;
+	var content_files = new Array();
+	var deleteFiles = new Array();
+	/* 파일 업로드 관련 변수 */
+
 	$(document).ready(function(){
-		var flag = "${flag}"
-		if(flag === "U") {
-			fn_detail("${boardIdx}");
+		var flag = "${flag}";
+		if(flag === "U"){
+			fn_detail("${boardIdx}");	
 		}
+		
 		
 		$("#btn_save").on('click', function(){
 			fn_save();
 		});
 		
 		$("#btn_list").on('click', function(){
-			location.href = "/board/boardList.do";
+			location.href="/board/boardList.do";
+		});
+		
+		$("#uploadFile").on("change", function(e){
+			var files = e.target.files;
+			// 파일 배열 담기
+			var filesArr = Array.prototype.slice.call(files);
+			//파일 개수 확인 및 제한
+			if(fileCnt + filesArr.length > totalCnt){
+				alert("파일은 최대 "+totCnt+"개까지 업로드 할 수 있습니다.");
+				return;
+			}else{
+				fileCnt = fileCnt+ filesArr.length;
+			}
+			
+			// 각각의 파일 배열 담기 및 기타
+			filesArr.forEach(function (f){
+				var reader = new FileReader();
+				reader.onload = function (e){
+					content_files.push(f);
+					$("#boardFileList").append( //기존에 있는 내용에 더해짐
+								'<div id="file'+fileNum+'" style="float:left;">'// width: 100%;
+								+'<font style="font-size:12px">' + f.name + '</font>'
+								+'<a href="javascript:fileDelete(\'file'+fileNum+'\')">X</a>'
+								+'</div>'
+					);
+					fileNum++;
+				};
+				reader.readAsDataURL(f);
+			});
+			//초기화한다.
+			$("#uploadFile").val("");
 		});
 	});
 	
-	function fn_detail(boardIdx) {
+	function fileDelete(fileNum){
+		var no = fileNum.replace(/[^0-9]/g, ""); // /[^0-9]/g 공백제거 후 숫자로 (정규식) 
+		content_files[no].is_delete = true;
+		$("#"+fileNum).remove();
+		fileCnt--; 
+	}
+	
+	function fn_detail(boardIdx){
 		$.ajax({
 		    url: '/board/getBoardDetail.do',
 		    method: 'post',
-		    data : {"boardIdx" : boardIdx}, //{'파라미터 명칠' : 실제데이터}
+		    data : { "boardIdx" : boardIdx},
 		    dataType : 'json',
 		    success: function (data, status, xhr) {
 //		    	console.log(data.boardInfo);
-
-			$("#boardTitle").val(data.boardInfo.boardTitle);
-			$("#boardContent").val(data.boardInfo.boardContent);
-
+				$("#boardTitle").val(data.boardInfo.boardTitle);
+				$("#boardContent").val(data.boardInfo.boardContent);
 		    },
 		    error: function (data, status, err) {
 		    	console.log(err);
@@ -58,12 +112,25 @@
 	}
 	
 	function fn_save(){
-		var frm = $("#saveFrm").serialize();
-//		console.log(frm);
+		// var frm = $("#saveFrm").serialize();
+		//console.log($("#saveFrm")[0]);
+		var formData = new FormData($("#saveFrm")[0]); //파일 업로드 할때는 formData 사용
+		
+		for(var x=0; x<content_files.length; x++){
+			//삭제 안한 것만 담아준다.
+			console.log(content_files[x].is_delete);
+			if(!content_files[x].is_delete){
+				formData.append("fileList", content_files[x]); 
+			}
+		}
+		
 		$.ajax({
 		    url: '/board/saveBoard.do',
 		    method: 'post',
-		    data : frm,
+		    data : formData, // 파일 업로드 할때는 enctype,processData,contentType 필수
+		    enctype : 'multipart/form-data',
+		    processData : false, //true 동기식
+		    contentType : false, // false면 비동기식
 		    dataType : 'json',
 		    success: function (data, status, xhr) {
 		    	if(data.resultChk > 0){
@@ -78,18 +145,41 @@
 		    }
 		});
 	}
+	
+//	function fn_save(){
+//		var frm = $("#saveFrm").serialize();
+//		console.log(frm);
+//		$.ajax({
+//		    url: '/board/saveBoard.do',
+//		    method: 'post',
+//		    data : frm,
+//		    dataType : 'json',
+//		    success: function (data, status, xhr) {
+//		    	if(data.resultChk > 0){
+//		    		alert("저장되었습니다.");
+//		    		location.href="/board/boardList.do";
+//		    	}else{
+//		    		alert("저장에 실패하였습니다.");
+//		    	}
+//		    },
+//		    error: function (data, status, err) {
+//		    	console.log(err);
+//		    }
+//		});
+//	}
+
 </script>
 </head>
 <body>
 	<div>
 		<form id="saveFrm" name="saveFrm">
-			<input type="hidden" id="statusFlag" name="statusFlag" value="${flag}"/>
-			<input type="hidden" id="boardIdx" name="boardIdx" value="${boardIdx}"/>
+			<input type="hidden" id="statusFlag" name="statusFlag" value="${flag}" /> 
+			<input type="hidden" id="boardIdx" name="boardIdx" value="${boardIdx}" />
 			<table>
 				<tr>
-					<th>제목</th>
+					<th>제목1</th>
 					<td>
-						<input type="text" class="text" id="boardTitle" name="boardTitle"/>
+						<input type="text" class="text" id="boardTitle" name="boardTitle" />
 					</td>
 				</tr>
 				<tr>
@@ -98,12 +188,19 @@
 						<textarea rows="20" cols="60" id="boardContent" name="boardContent" class="text"></textarea>
 					</td>
 				</tr>
+				<tr>
+					<th>첨부파일</th>
+					<td>
+						<input type="file" class="text" id="uploadFile" name="uploadFile" multiple />
+						<div id="boardFileList"></div>
+					</td>
+				</tr>
 			</table>
 		</form>
 	</div>
-	<div style="float:right;">
-		<input type="button" id="btn_save" name="btn_save" value="저장"/>
-		<input type="button" id="btn_list" name="btn_list" value="목록"/>
+	<div style="float: right;">
+		<input type="button" id="btn_save" name="btn_save" value="저장" /> 
+		<input type="button" id="btn_list" name="btn_list" value="목록" />
 	</div>
 </body>
 </html>
